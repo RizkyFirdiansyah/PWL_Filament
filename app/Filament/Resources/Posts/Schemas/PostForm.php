@@ -30,17 +30,28 @@ class PostForm
                     ->schema([
                         Group::make([
                             TextInput::make('title')
-                                ->required()
-                                ->minLength(5),
+                                ->rules(['required', 'min:5'])
+                                ->validationMessages([
+                                    'required' => 'Title is required.',
+                                    'min' => 'Title must be at least :min characters.',
+                                ]),
+                            // ->minLength(5),
 
                             TextInput::make('slug')
-                                ->required()
-                                ->unique(ignoreRecord: true),
+                                ->rules(['required', 'min:3'])
+                                ->unique()
+                                ->validationMessages([
+                                    'unique' => 'Slug must be unique.',
+                                ]),
 
                             Select::make('category_id')
+                                ->rule('required')
                                 ->relationship('category', 'name')
                                 ->preload()
-                                ->searchable(),
+                                ->searchable()
+                                ->validationMessages([
+                                    'required' => 'Category is required.',
+                                ]),
 
                             ColorPicker::make('color'),
                         ])->columns(2),
@@ -54,6 +65,7 @@ class PostForm
                         ->icon('heroicon-s-photo')
                         ->schema([
                             FileUpload::make('image')
+                                ->rule('required')
                                 ->disk('public')
                                 ->directory('posts'),
                         ]),
